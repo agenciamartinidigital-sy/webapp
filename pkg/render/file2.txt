@@ -6,48 +6,34 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
-	"weapp/pkg/config"
-	"weapp/pkg/models"
 )
 
-var function = template.FuncMap{}
-
-var app *config.AppConfig
-
-// New templates sets the config for the template package
-func NewTemplates(a *config.AppConfig) {
-	app = a
-}
-
-func AddDefaultData(td *models.TemplateData) *models.TemplateData {
-
-
-	return td
-}
-
 // RenderTemplate - render html/template
-func RenderTemplate(w http.ResponseWriter, tmpl string, td *models.TemplateData) {
-	var tc map[string]*template.Template
-	if app.UseCache {
-		// get the template cache from the app config
-		tc = app.TemplateCache
-	} else {
-		tc, _ = CreateTemplateCache()
+func RenderTemplate(w http.ResponseWriter, tmpl string) {
+	// get the template cache from the app config
+
+
+
+	tc, err := CreateTemplateCache()
+	if err != nil {
+		log.Fatal(err)
 	}
 
+	// get requested template from cache
 	t, ok := tc[tmpl]
 	if !ok {
-		log.Fatal("Could note get template from template chace")
+		log.Fatal(err)
 	}
 
 	buf := new(bytes.Buffer)
 
-	td = AddDefaultData(td)
-
-	_ = t.Execute(buf, td)
+	err = t.Execute(buf, nil)
+	if err != nil {
+		log.Println(err)
+	}
 
 	// render the template
-	_, err := buf.WriteTo(w)
+	_, err = buf.WriteTo(w)
 	if err != nil {
 		log.Println(err)
 	}
