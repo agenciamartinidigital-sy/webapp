@@ -1,3 +1,3 @@
-module bookings-udemy
+module weapp
 
-go 1.15
+go 1.26.4
